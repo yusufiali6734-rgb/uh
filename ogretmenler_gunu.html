@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Öğretmenler Günü - Teşekkürler Öğretmenim</title>
+  <style>
+    :root{--bg:#fff7f0;--card:#ffffff;--accent:#ff6f61;--muted:#6b6b6b}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,var(--bg),#fff);color:#111}
+    header{padding:28px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo .mark{width:56px;height:56px;border-radius:12px;background:radial-gradient(circle at 30% 20%,#fff,#ffd9d4);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:20px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+    h1{font-size:28px;margin:0}
+    p.lead{margin:6px 0 0;color:var(--muted)}
+
+    main{max-width:980px;margin:20px auto;padding:20px}
+    .hero{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:center}
+    @media (max-width:880px){.hero{grid-template-columns:1fr;}.logo h1{font-size:18px}}
+
+    .card{background:var(--card);border-radius:14px;padding:18px;box-shadow:0 6px 20px rgba(12,12,12,0.06)}
+    .big-quote{font-size:20px;margin:0 0 10px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    button{border:0;background:var(--accent);color:white;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    button.alt{background:transparent;border:1px solid #eee;color:var(--muted)}
+
+    form{display:flex;flex-direction:column;gap:8px}
+    textarea{resize:vertical;min-height:88px;padding:10px;border-radius:10px;border:1px solid #eee;font-family:inherit}
+    input[type=text]{padding:10px;border-radius:10px;border:1px solid #eee}
+
+    .messages{margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .msg{padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fffefc);box-shadow:0 4px 12px rgba(0,0,0,0.03)}
+    .msg .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .gallery{display:flex;gap:10px;flex-wrap:wrap}
+
+    footer{padding:18px;text-align:center;color:var(--muted);font-size:14px}
+
+    #confetti{position:fixed;left:0;top:0;pointer-events:none;width:100%;height:100%;z-index:999}
+
+    .certificate{padding:22px;border-radius:12px;text-align:center}
+    .certificate .title{font-size:22px;font-weight:700;margin-bottom:8px}
+    .certificate .teacher{font-size:18px;margin-bottom:12px}
+    @media print{header,button,input,textarea,footer{display:none}body{background:white}main{max-width:100%;margin:0}} 
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <header>
+    <div class="logo">
+      <div class="mark">Ö</div>
+      <div>
+        <h1>Öğretmenler Günü</h1>
+        <p class="lead">Kodla hazırlanmış küçük bir teşekkür sitesi — düzenle, paylaş, kutla!</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="celebrateBtn">Kutla 🎉</button>
+      <button id="printCert" class="alt">Sertifika Yazdır</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="card">
+        <p class="big-quote">"İyi bir öğretmen bir kapı açar, gerisini öğrenci yürür."</p>
+        <p>Bu sayfada öğrencilerinizin kısa teşekkür mesajlarını toplayabilirsiniz. Mesajları ekle, beğen, veya yazdırılabilir sertifika oluştur.</p>
+
+        <hr style="margin:14px 0;border:none;border-top:1px dashed #eee">
+
+        <form id="msgForm">
+          <input type="text" id="sender" placeholder="Adın veya sınıfın (isteğe bağlı)" />
+          <textarea id="message" placeholder="Öğretmenine kısa bir teşekkür yaz..." required></textarea>
+          <div style="display:flex;gap:8px">
+            <button type="submit">Gönder</button>
+            <button type="button" id="clearAll" class="alt">Tümünü Temizle</button>
+          </div>
+        </form>
+
+        <div class="messages card" id="messagesContainer" style="margin-top:12px;padding:12px"></div>
+      </div>
+
+      <aside>
+        <div class="card certificate" id="certificatePreview">
+          <div class="title">Teşekkür Sertifikası</div>
+          <div class="teacher" id="certTeacher">Sevgili Öğretmenim</div>
+          <div id="certMessage">Buraya bir teşekkür mesajı eklendiğinde sertifikada görünecek.</div>
+          <div style="margin-top:12px;font-size:12px;color:var(--muted)">Bu görüntüyü yazdırmak için "Sertifika Yazdır" butonunu kullanın.</div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <strong>Paylaş</strong>
+            <small style="color:var(--muted)">Kolay seçenekler</small>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="shareLink" class="alt">Bağlantı Al</button>
+            <button id="downloadData" class="alt">Mesajları İndir</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section style="margin-top:18px" class="card">
+      <h3 style="margin:0 0 8px">Galeri</h3>
+      <p style="margin:0 0 12px;color:var(--muted)">Öğrencilerin gönderdiği en güzel mesajlar burada görünecek.</p>
+      <div class="gallery" id="gallery"></div>
+    </section>
+  </main>
+
+  <footer>
+    Hazırlayan — Kodla Öğretmenler Günü ❤️
+  </footer>
+
+  <script>
+    const form = document.getElementById('msgForm');
+    const sender = document.getElementById('sender');
+    const message = document.getElementById('message');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const gallery = document.getElementById('gallery');
+    const certMsg = document.getElementById('certMessage');
+    const certTeacher = document.getElementById('certTeacher');
+
+    function loadMessages(){
+      const data = JSON.parse(localStorage.getItem('ogretmen_mesajlar')||'[]');
+      return data;
+    }
+    function saveMessages(arr){ localStorage.setItem('ogretmen_mesajlar', JSON.stringify(arr)); }
+
+    function render(){
+      const arr = loadMessages();
+      messagesContainer.innerHTML = '';
+      gallery.innerHTML = '';
+      if(!arr.length){ messagesContainer.innerHTML = '<div style="color:var(--muted)">Henüz mesaj yok. İlk mesajı ekle!</div>'; return }
+      arr.slice().reverse().forEach((m, i)=>{
+        const el = document.createElement('div'); el.className='msg';
+        el.innerHTML = `<div class='meta'>${escapeHtml(m.sender||'Anonim')} · ${new Date(m.t).toLocaleString()}</div><div class='body'>${escapeHtml(m.text)}</div><div style="margin-top:8px;display:flex;gap:8px"><button data-i='${i}' class='alt btnDel'>Sil</button><button data-i='${i}' class='alt btnUse'>Sertifikada Kullan</button></div>`
+        messagesContainer.appendChild(el);
+
+        const g = document.createElement('div'); g.className='msg'; g.style.minWidth='200px'; g.innerHTML = `<div style="font-size:13px;color:var(--muted)">${escapeHtml(m.sender||'Anonim')}</div><div style="margin-top:6px">${escapeHtml(truncate(m.text,120))}</div>`; gallery.appendChild(g);
+      })
+    }
+
+    function escapeHtml(s){ return (s+'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') }
+    function truncate(s,n){ return s.length>n?s.slice(0,n-1)+'…':s }
+
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      const arr = loadMessages();
+      arr.push({sender:sender.value.trim(),text:message.value.trim(),t:Date.now()});
+      saveMessages(arr);
+      sender.value=''; message.value=''; render();
+      popConfetti();
+    })
+
+    document.addEventListener('click', e=>{
+      if(e.target.classList.contains('btnDel')){
+        const i = Number(e.target.dataset.i);
+        const arr=loadMessages(); arr.splice(i,1); saveMessages(arr); render();
+      }
+      if(e.target.classList.contains('btnUse')){
+        const i = Number(e.target.dataset.i);
+        const arr=loadMessages(); const m = arr[i]; if(m){ certTeacher.textContent = m.sender || 'Sevgili Öğretmenim'; certMsg.textContent = m.text }
+      }
+    })
+
+    document.getElementById('clearAll').addEventListener('click', ()=>{ if(confirm('Tüm mesajlar silinsin mi?')){ localStorage.removeItem('ogretmen_mesajlar'); render(); } })
+
+    document.getElementById('downloadData').addEventListener('click', ()=>{
+      const arr = loadMessages(); const blob = new Blob([JSON.stringify(arr, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='ogretmen_mesajlar.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    })
+
+    document.getElementById('shareLink').addEventListener('click', ()=>{
+      const arr = loadMessages(); const s = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(arr)))));const link = location.origin + location.pathname + '#m=' + s;
+      navigator.clipboard?.writeText(link).then(()=>alert('Bağlantı kopyalandı! Yapıştırarak paylaşabilirsin.'))
+    })
+
+    function tryLoadFromHash(){
+      try{ if(location.hash.startsWith('#m=')){ const raw = location.hash.slice(3); const json = decodeURIComponent(escape(atob(decodeURIComponent(raw)))); const arr = JSON.parse(json); saveMessages(arr); render(); alert('Paylaşılan mesajlar yüklendi.'); location.hash=''; }}catch(e){console.warn(e)}
+    }
+
+    document.getElementById('printCert').addEventListener('click', ()=>{ window.print(); })
+    document.getElementById('celebrateBtn').addEventListener('click', ()=>{ popConfetti(); })
+
+    const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d'); let confettis=[]; function resize(){ canvas.width=innerWidth; canvas.height=innerHeight } window.addEventListener('resize',resize); resize();
+    function popConfetti(){ for(let i=0;i<60;i++){ confettis.push({x:Math.random()*canvas.width,y:-20,vy:Math.random()*3+1,vx:(Math.random()-0.5)*5,rot:Math.random()*360,vr:(Math.random()-0.5)*10,w:6+Math.random()*10,h:6+Math.random()*6,color:`hsl(${Math.floor(Math.random()*360)} 80% 60%)`}) } if(!animating) animate(); }
+    let animating=false;
+    function animate(){ animating=true; ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=confettis.length-1;i>=0;i--){ const p=confettis[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.rot+=p.vr; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore(); if(p.y>canvas.height+50){ confettis.splice(i,1) } } if(confettis.length){ requestAnimationFrame(animate) } else animating=false }
+
+    render(); tryLoadFromHash();
+  </script>
+</body>
+</html>
